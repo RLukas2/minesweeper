@@ -1,8 +1,6 @@
-#include <bits/stdc++.h>
-#include <windows.h>
-using namespace std;
+#include "cursor.hpp"
 
-void cls() {
+void cls1() {
     static const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -19,4 +17,13 @@ void cls() {
     FillConsoleOutputCharacter(hOut, TEXT(' '), length, topLeft, &written);
     FillConsoleOutputAttribute(hOut, csbi.wAttributes, length, topLeft, &written);
     SetConsoleCursorPosition(hOut, topLeft);
+}
+
+void cls2() {
+    static const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD Position;
+
+    Position.X = 0;
+    Position.Y = 0;
+    SetConsoleCursorPosition(hOut, Position);
 }

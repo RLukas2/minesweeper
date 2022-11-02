@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <conio.h>
 
+#include "board.hpp"
+#include "cursor.hpp"
+
 using namespace std;
 
 // Windows difficulties:
@@ -12,16 +15,14 @@ using namespace std;
 // + Intermediate: 16, 16, 40
 // + Expert:       16, 30, 99
 
-// #include "Cursor.cpp"
-#include "game.cpp"
-
 Minesweeper Game;
 
 mt19937 rng((uint64_t) new char);
 
-long long seed;
+long long seed = 0;
 int row_count, col_count, numMines;
 
+// Default settings
 void __init__() {
     seed = rng();
     row_count = 9;
@@ -29,6 +30,7 @@ void __init__() {
     numMines = 10;
 }
 
+/// ================ In gameplay mode  =================
 // ================== Windows.h library ==================
 
 bool SetKeyInGame(int vKey, int& x, int& y, bool& isUpdated);
@@ -89,7 +91,8 @@ void inGame() {
 
     do {
         if (isUpdated) {
-            system("cls");
+            // system("cls");
+            cls2();
 
             cout << x << ' ' << y << "\n\n";
             Game.PrintBoard();
@@ -99,21 +102,6 @@ void inGame() {
         ReadConsoleInput(hInput, &irInput, 1, &InputsRead);
         if (irInput.Event.KeyEvent.bKeyDown)
             isGameOver = !SetKeyInGame(irInput.Event.KeyEvent.wVirtualKeyCode, x, y, isUpdated);
-
-        /*
-        if (GetAsyncKeyState(VK_UP) & 1)
-            SetKey(VK_UP, x, y, isUpdated);
-        else if (GetAsyncKeyState(VK_DOWN) & 1)
-            SetKey(VK_DOWN, x, y, isUpdated);
-        else if (GetAsyncKeyState(VK_LEFT) & 1)
-            SetKey(VK_LEFT, x, y, isUpdated);
-        else if (GetAsyncKeyState(VK_RIGHT) & 1)
-            SetKey(VK_RIGHT, x, y, isUpdated);
-        else if (GetAsyncKeyState(0x46) & 1)
-            SetKey(0x46, x, y, isUpdated);
-        else if (GetAsyncKeyState(0x20) & 1)
-            isGameOver = !SetKey(0x20, x, y, isUpdated);
-        */
     } while (isGameOver == false && Game.remain_count > 0);
     // Checking if the player lose yet or the number of blank tile is all opened.
 
@@ -122,7 +110,11 @@ void inGame() {
 
 
 int main(int argc, char* argv[]) {
+    // Configure default settings
     __init__();
+
+
+
 
     inGame();
 
