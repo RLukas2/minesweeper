@@ -83,6 +83,12 @@ void Minesweeper::CalculateMine() {
 // ========================== User's Input ==========================
 
 void Minesweeper::setFlag(int x, int y) {
+    // The case that player has flagged the tile that has been opened
+    if (flaggingTable[x][y] == true) {
+        flaggingTable[x][y] ^= 1;
+        return;
+    }
+
     // Cannot set flag on opened tile
     if (steppedTable[x][y] == true) return;
 
@@ -206,22 +212,27 @@ bool Minesweeper::stepping(int x, int y) {
     return true;
 }
 
+char Minesweeper::TileData(int x, int y, bool ShowBomb = false) {
+    if (ShowBomb == true) {
+        if (playingTable[x][y] == 'M')
+            return (flaggingTable[x][y] == true ? 'F' : 'B');
 
-void Minesweeper::PrintBoard() {
+        if (flaggingTable[x][y] == true) return 'X';
+    }
+
+    if (flaggingTable[x][y] == false && steppedTable[x][y] == false) return '*';
+    else {
+        if (flaggingTable[x][y] == true) return 'F';
+        else return (playingTable[x][y] == '0' ? ' ' : playingTable[x][y]);
+    }
+
+    return '?';
+}
+
+void Minesweeper::PrintBoard(bool ShowBomb = false) {
     for(int i = 0; i < row_count; ++i) {
         for(int j = 0; j < col_count; ++j) {
-            if (flaggingTable[i][j] == false && steppedTable[i][j] == false) std::cout << '*';
-            else {
-                if (flaggingTable[i][j] == true) // The position is flagged
-                    std::cout << 'F';
-                else {
-                    if (playingTable[i][j] == '0')
-                        std::cout << ' ';
-                    else
-                        std::cout << playingTable[i][j];
-                }
-
-            }
+            std::cout << TileData(i, j, ShowBomb);
         }
         std::cout << '\n';
     }

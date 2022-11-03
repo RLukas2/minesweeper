@@ -41,7 +41,8 @@ struct Minesweeper {
     int numberOfFlag(int sx, int sy);
     void propagate(int sx, int sy, bool& OnBomb, bool numberedTile);
     bool stepping(int x, int y);
-    void PrintBoard();
+    char TileData(int x, int y, bool ShowBomb);
+    void PrintBoard(bool ShowBomb);
 };
 
 #endif

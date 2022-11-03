@@ -1,26 +1,24 @@
 #include "board.hpp"
 #include "cursor.hpp"
+#include "game.hpp"
+
+using namespace std;
 
 Minesweeper Game;
 
-mt19937 rng((uint64_t) new char);
-
+std::mt19937 rng((uint64_t) new char);
 long long seed = 0;
 int row_count, col_count, numMines;
 
 // Default settings
 void __init__() {
     seed = rng();
-    row_count = 9;
-    col_count = 9;
-    numMines = 10;
+    row_count = 16;
+    col_count = 16;
+    numMines = 40;
 }
 
 /// ================ In gameplay mode  =================
-// ================== Windows.h library ==================
-
-bool SetKeyInGame(int vKey, int& x, int& y, bool& isUpdated);
-void inGame();
 
 /** \brief From key execute command and return the game is over or not
  *
@@ -81,7 +79,7 @@ void inGame() {
             cls2();
 
             cout << x << ' ' << y << "\n\n";
-            Game.PrintBoard();
+            Game.PrintBoard(false);
             isUpdated = 0;
         }
 
@@ -90,6 +88,14 @@ void inGame() {
             isGameOver = !SetKeyInGame(irInput.Event.KeyEvent.wVirtualKeyCode, x, y, isUpdated);
     } while (isGameOver == false && Game.remain_count > 0);
     // Checking if the player lose yet or the number of blank tile is all opened.
+
+    {
+        cls2();
+
+        cout << x << ' ' << y << "\n\n";
+        Game.PrintBoard(isGameOver);
+        cout << '\n';
+    }
 
     cout << (isGameOver == true ? "Game Over!" : "Winned!") << '\n';
 }
