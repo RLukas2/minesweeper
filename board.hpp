@@ -35,13 +35,16 @@ struct Minesweeper {
     bool isSafe(int x, int y);
     void CalculateMine();
 
+    // =================== Background calculation =======================
+
+    int numberOfFlag(int sx, int sy);
+    void propagate(int sx, int sy, bool& OnBomb, bool numberedTile);
+    char TileData(int x, int y, bool ShowBomb);
+
     // ========================== User's Input ==========================
 
     void setFlag(int x, int y);
-    int numberOfFlag(int sx, int sy);
-    void propagate(int sx, int sy, bool& OnBomb, bool numberedTile);
     bool stepping(int x, int y);
-    char TileData(int x, int y, bool ShowBomb);
     void PrintBoard(bool ShowBomb);
 };
 

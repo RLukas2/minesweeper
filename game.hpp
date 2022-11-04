@@ -12,12 +12,19 @@ extern std::mt19937 rng;
 extern long long seed;
 extern int row_count, col_count, numMines;
 
+extern std::map<std::string, std::string> argumentLists;
+
+/// ================       Settings    =================
+
 void __init__();
+void Menu();
+void SettingsMenu();
+void ReadArgument(int argc, char* argv[]);
+void ArgumentToSettings();
 
 /// ================ In gameplay mode  =================
-// ================== Windows.h library ==================
 
 bool SetKeyInGame(int vKey, int& x, int& y, bool& isUpdated);
-void inGame();
+void newGame();
 
 #endif // GAME_HPP_INCLUDED

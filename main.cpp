@@ -19,10 +19,12 @@ using namespace std;
 
 
 int main(int argc, char* argv[]) {
-    // Configure default settings
     __init__();
 
-    inGame();
+    int CurrentSettings = 0;
+    while (true) {
+        Menu();
+    }
 
     return 0;
 }

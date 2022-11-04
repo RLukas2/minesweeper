@@ -1,0 +1,169 @@
+#include "board.hpp"
+#include "cursor.hpp"
+#include "game.hpp"
+using namespace std;
+
+Minesweeper Game;
+std::mt19937 rng((uint64_t) new char);
+long long seed = 0;
+int row_count;
+int col_count;
+int numMines;
+map<string, string> argumentLists;
+
+
+/// Default settings
+void __init__() {
+    // Make console background more dark
+    SetConsoleTextAttribute(hOut, 15);
+
+    argumentLists["--seed"] = to_string(rng());
+    argumentLists["--difficulty"] = "expert";
+    argumentLists["--rows"] = "16";
+    argumentLists["--columns"] = "30";
+    argumentLists["--mines"] = "99";
+}
+
+
+void SettingsMenu() {
+    gotoxy(0, 1);
+
+    cout << "**********************************************************" << '\n';
+    cout << "*                                                        *" << '\n';
+    cout << "*                       MINESWEEPER                      *" << '\n';
+    cout << "*                                                        *" << '\n';
+    cout << "**********************************************************" << '\n';
+
+    int index = 1;
+
+    gotoxy(5, 1);
+    cout << "Press number to choose!" << '\n';
+
+    gotoxy(6, 10);
+    if (FILE *file = fopen("1.sav", "r")) { // Check if have save game or not to continue
+        cout << index++ << ". Continue old game." << '\n';
+    }
+    gotoxy(7, 10);
+    cout << index++ << ". New game" << '\n';
+    gotoxy(8, 10);
+    cout << index++ << ". Settings" << '\n';
+    gotoxy(9, 10);
+    cout << index++ << ". Exit" << '\n';
+}
+
+/// Read Argument (To be progress)
+void ReadArgument(int argc, char* argv[]) {
+
+}
+
+/// This will be the last thing after settings or argument
+void ArgumentToSettings() {
+    seed = std::atoll(argumentLists["--seed"].c_str());
+
+    std::string Difficulty = argumentLists["--difficulty"];
+    switch (Difficulty[0]) {
+        case 'b': // Beginner
+        row_count = 9, col_count = 9, numMines = 10;
+        break;
+
+        case 'i': // Intermediate
+        row_count = 16, col_count = 16, numMines = 40;
+        break;
+
+        case 'e': // Expert
+        row_count = 16, col_count = 30, numMines = 99;
+        break;
+
+        default: // Custom
+        row_count = atoi(argumentLists["--rows"].c_str()),
+        col_count = atoi(argumentLists["--columns"].c_str()),
+        numMines = atoi(argumentLists["--mines"].c_str());
+    }
+}
+
+
+/// ================ In gameplay mode  =================
+
+/** \brief From key execute command and return the game is over or not
+ *
+ * \param vKey:int - Value of the virtual key mapping. Use to determine user key
+ * \param (&) x:int, y:int - The position of the user cursor
+ * \param (&) isUpdated:bool - Using it to check we need to update the board or not
+ * \return True: If the game is still on, False: Game over
+ *
+ */
+
+bool SetKeyInGame(int vKey, int& x, int& y, bool& isUpdated) {
+    switch (vKey) {
+    case VK_UP:     // Up Arrow
+        x = max(x - 1, 0);
+    break;
+    case VK_DOWN:   // Down Arrow
+        x = min(x + 1, row_count - 1);
+    break;
+    case VK_LEFT:   // Left Arrow
+        y = max(y - 1, 0);
+    break;
+    case VK_RIGHT:  // Right Arrow
+        y = min(y + 1, col_count - 1);
+    break;
+    case 0x46: // F key - Flag
+        Game.setFlag(x, y);
+    break;
+    case 0x20: {    // Spacebar - using for open flag
+            isUpdated = 1;
+            return Game.stepping(x, y);
+        }
+    break;
+
+    default:        // Not any key
+        return true;
+    }
+
+    isUpdated = 1;
+    return true;
+}
+
+void inGame() {
+    ArgumentToSettings();
+    Game._init_(row_count, col_count, numMines, seed);
+
+    int x = 0, y = 0;
+    bool isUpdated = 1;
+    bool isGameOver = 0;
+
+    // windows.h library - Use to handle user input
+    HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD NumInputs = 0, InputsRead = 0;
+    INPUT_RECORD irInput;
+    GetNumberOfConsoleInputEvents(hInput, &NumInputs);
+
+    do {
+        if (isUpdated) {
+            // system("cls");
+            cls();
+
+            cout << x << ' ' << y << "\n\n";
+            Game.PrintBoard(false);
+            isUpdated = 0;
+        }
+
+        ReadConsoleInput(hInput, &irInput, 1, &InputsRead);
+        if (irInput.Event.KeyEvent.bKeyDown) {
+            isGameOver = !SetKeyInGame(irInput.Event.KeyEvent.wVirtualKeyCode, x, y, isUpdated);
+            Sleep(100);
+        }
+    } while (isGameOver == false && Game.remain_count > 0);
+    // Checking if the player lose yet or the number of blank tile is all opened.
+
+    {
+        cls();
+
+        cout << x << ' ' << y << "\n\n";
+        Game.PrintBoard(isGameOver);
+        cout << '\n';
+    }
+
+    cout << (isGameOver == true ? "Game Over!" : "Winned!") << '\n';
+}
+
