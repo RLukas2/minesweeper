@@ -17,12 +17,16 @@ extern std::map<std::string, std::string> argumentLists;
 /// ================       Settings    =================
 
 void __init__();
+bool ReadKeyMenu(int vKey);
 void Menu();
+void ReadKeySettings(int vKey);
 void SettingsMenu();
 void ReadArgument(int argc, char* argv[]);
 void ArgumentToSettings();
 
 /// ================ In gameplay mode  =================
+
+void timer();
 
 bool SetKeyInGame(int vKey, int& x, int& y, bool& isUpdated);
 void newGame();

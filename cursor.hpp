@@ -10,4 +10,10 @@ void cls();
 
 void gotoxy(int X, int Y);
 
+void colorBackground(int X, int Y, char TileData, bool isOpened);
+
+void turnCursor(bool showFlag);
+
+void setConsoleSize(int W, int H);
+
 #endif

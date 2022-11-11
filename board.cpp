@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "cursor.hpp"
 
 // Random a integer in range [l; r]
 int Minesweeper::randomInt(int l, int r) {
@@ -10,13 +11,14 @@ int Minesweeper::randomInt(int l, int r) {
 void Minesweeper::_init_(int rows, int cols, int mines, long long seed = 0) {
     std::memset(playingTable, 0, sizeof playingTable);
     std::memset(steppedTable, 0, sizeof playingTable);
+    std::memset(flaggingTable, 0, sizeof flaggingTable);
     this->row_count = rows;
     this->col_count = cols;
     this->mine_count = mines;
     this->seed = seed;
     this->first_step = true;
-    rng.seed(this->seed);
 
+    rng.seed(this->seed);
     buildGrid();
 }
 
@@ -127,15 +129,20 @@ int Minesweeper::numberOfFlag(int sx, int sy) {
  *  In minesweeper game, if the position we click is 0 mine. We have to fill out the surrounding the area of 0 mine
  *  Also filling out surrounding area with Stepped by updating steppedTable[][]
  */
+
 void Minesweeper::propagate(int sx, int sy, bool& OnBomb, bool numberedTile = false) {
     if (!isSafe(sx, sy)) return;
-    if (playingTable[sx][sy] == 'M' || (numberedTile == false && steppedTable[sx][sy] == true)) return;
+    if (isdigit(Minesweeper::TileData(sx, sy, false)) == false &&
+        playingTable[sx][sy] == 'F')
+            return;
+    // Do not touch the flag
+    if (playingTable[sx][sy] == 'M') return; // The tile is mine
+    if (numberedTile == false && steppedTable[sx][sy] == true) return; // Don't repeat the step
 
     if (steppedTable[sx][sy] == false) // Decreasing the number of blank step left
         remain_count--;
 
     steppedTable[sx][sy] = true;
-
 
     if (playingTable[sx][sy] == '0' || numberedTile == true) {
         for(int dx = -1; dx <= 1; ++dx)
@@ -190,6 +197,8 @@ bool Minesweeper::stepping(int x, int y) {
             }
 
         CalculateMine();
+        memset(flaggingTable, 0, sizeof flaggingTable); // Delete all flag
+
         propagate(x, y, OnBomb);
         return true;
     }
@@ -220,7 +229,7 @@ char Minesweeper::TileData(int x, int y, bool ShowBomb = false) {
         if (flaggingTable[x][y] == true) return 'X';
     }
 
-    if (flaggingTable[x][y] == false && steppedTable[x][y] == false) return '*';
+    if (flaggingTable[x][y] == false && steppedTable[x][y] == false) return ' ';
     else {
         if (flaggingTable[x][y] == true) return 'F';
         else return (playingTable[x][y] == '0' ? ' ' : playingTable[x][y]);
@@ -230,12 +239,21 @@ char Minesweeper::TileData(int x, int y, bool ShowBomb = false) {
 }
 
 void Minesweeper::PrintBoard(bool ShowBomb = false) {
+    turnCursor(false);
+    gotoxy(0, 0);
+
     for(int i = 0; i < row_count; ++i) {
         for(int j = 0; j < col_count; ++j) {
-            std::cout << TileData(i, j, ShowBomb);
+            char currentTile = TileData(i, j, ShowBomb);
+
+            colorBackground(i, j, currentTile, steppedTable[i][j]);
+            std::cout << currentTile << ' ';
         }
         std::cout << '\n';
     }
 
     std::cout.flush();
+
+    SetConsoleTextAttribute(hOut, 15); // Set to default color
+    turnCursor(true);
 }
